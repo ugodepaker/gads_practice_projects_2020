@@ -1,1 +1,1 @@
-# gads_practice_projects_2020
+# Ugochi's GADS practice project submission
