@@ -1,0 +1,86 @@
+GETTING STARTED WITH APP ENGINE
+
+
+Objectives
+
+Initialize App Engine.
+
+Preview an App Engine application running locally in Cloud Shell.
+
+Deploy an App Engine application, so that others can reach it.
+
+Disable an App Engine application, when you no longer want it to be visible.
+
+1. Activate Google Cloud Shell
+
+  * To list the active account name with this command:
+    gcloud auth list
+	
+	Result: 
+	           Credentialed Accounts
+     ACTIVE  ACCOUNT
+       student-00-2a98ae68f6a4@qwiklabs.net
+     To set the active account, run:
+     $ gcloud config set account `ACCOUNT`
+	
+	
+*To list the project ID with this command:
+    gcloud config list project
+	
+	Result: 
+	project = qwiklabs-gcp-00-2c01ef13f768
+    Your active configuration is: [cloudshell-25060]
+	
+ 2. Initialize App Engine
+   
+   *Initialize your App Engine app with your project and choose its region:
+     gcloud app create --project=$DEVSHELL_PROJECT_ID gcloud compute set compute/zone us-central1-a
+	 
+   *Clone the source code repository for a sample application in the hello_world directory:
+     git clone https://github.com/GoogleCloudPlatform/python-docs-samples
+	 
+   *Navigate to the source directory:
+     cd python-docs-samples/appengine/standard_python3/hello_world
+	 
+3.Run Hello World application locally
+
+   * Download and update the packages list.
+      sudo apt-get update
+	  
+   *Set up a virtual environment in which you will run your application.
+      sudo apt-get install virtualenv
+	  
+   *If prompted [Y/n], press Y and then Enter
+   
+   *Activate the virtual environment.
+      source venv/bin/activate
+	  
+    *Navigate to your project directory and install dependencies.
+	  pip install  -r requirements.txt
+	  
+    *To run the application:
+	   python main.py
+	   
+	*To end the test
+	  Ctrl+C 
+	  
+4. Deploy and run Hello World on App Engine
+
+    *Navigate to the source directory:
+	  cd ~/python-docs-samples/appengine/standard_python3/hello_world
+	  
+	*Deploy your Hello World application
+	   gcloud app deploy
+	   
+	*If prompted "Do you want to continue (Y/n)?", press Y and then Enter.
+	
+	*Launch browser to view the app at http://YOUR_PROJECT_ID.appspot.com
+	    gcloud app browse
+		
+	
+5. Disable the application
+     
+	gcloud compute App engine --Settings "Disable application" --App ID "Disable"
+	
+	 Result:
+	  404 error

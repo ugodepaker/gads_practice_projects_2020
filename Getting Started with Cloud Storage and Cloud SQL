@@ -1,0 +1,128 @@
+GETTING STARTED WITH CLOUD STORAGE AND CLOUD SQL
+
+Objectives:
+Create a Cloud Storage bucket and place an image into it.
+
+Create a Cloud SQL instance and configure it.
+
+Connect to the Cloud SQL instance from a web server.
+
+Use the image in the Cloud Storage bucket on a web page.
+
+1. Deploy a web server VM instance
+gcloud compute instances bloghost 'n1-standard-1' --image -project "debian-cloud" --image "Debian GNU/Linux 9-stretch" --subnet "default" --tags http gcloud compute firewall-rules create allow -http --action=Allow --destination = INGRESS --rules = http:8080--target.tags = http
+
+   apt-get update
+   apt-get install apache2 php php-mysql -y
+   service apache2 restart
+2.Create a Cloud Storage bucket using the gsutil command line
+
+   *enter your chosen location into an environment variable called LOCATION
+     export LOCATION=US
+	 
+   *Make a bucket named after your project ID
+    gsutil mb -l $LOCATION gs://$DEVSHELL_PROJECT_ID
+	
+   *Retrieve a banner image from a publicly accessible Cloud Storage location:
+     gsutil cp gs://cloud-training/gcpfci/my-excellent-blog.png my-excellent-blog.png
+	 
+	 *Copy the banner image to your newly created Cloud Storage bucket:
+	 gsutil cp my-excellent-blog.png gs://$DEVSHELL_PROJECT_ID/my-excellent-blog.png
+	 
+	 *Modify the Access Control List of the object you just created so that it is readable by everyone:
+	   gsutil acl ch -u allUsers:R gs://$DEVSHELL_PROJECT_ID/my-excellent-blog.png
+	   
+3. Create the Cloud SQL instance
+
+gcloud compute instances SQL gcloud config set compute/database engine "MySql" --instance ID "blog-db" --Root password "Godisgood" gcloud config set compute/zone us-central1-a gcloud compute user account/username blogdbuser --password "Godisgood" --Connections "Public IP" --Name " web front end" --Network "35.192.208.2/32"
+
+4. Configure an application in a Compute Engine instance to use Cloud SQL
+
+   *Use ssh command to open VM instance bloghost.
+      ssh bloghost
+  
+   *change your working directory to the document root of the web server:
+       cd /var/www/html
+	   
+   *Use the nano text editor to edit a file called index.php:
+       sudo nano index.php
+	   
+   *Paste the content below into the file:
+       <html>
+<head><title>Welcome to my excellent blog</title></head>
+<body>
+<h1>Welcome to my excellent blog</h1>
+<?php
+ $dbserver = "CLOUDSQLIP";
+$dbuser = "blogdbuser";
+$dbpassword = "DBPASSWORD";
+// In a production blog, we would not store the MySQL
+// password in the document root. Instead, we would store it in a
+// configuration file elsewhere on the web server VM instance.
+
+$conn = new mysqli($dbserver, $dbuser, $dbpassword);
+
+if (mysqli_connect_error()) {
+        echo ("Database connection failed: " . mysqli_connect_error());
+} else {
+        echo ("Database connection succeeded.");
+}
+?>
+</body></html>
+
+
+*To save your edited file:
+   Press Ctrl+O and Enter
+   
+*To exit the nano text editor.
+   Press Ctrl+X
+   
+*Restart web server
+    sudo service apache2 restart
+	
+*Paste on new web browser tab
+    35.192.208.2/index.php
+	
+	Result: Database connection failed: ...
+	
+*Return to your ssh session on bloghost. Use the nano text editor to edit index.php again
+    sudo nano index.php
+	
+*To save your edited file:
+   Press Ctrl+O and Enter
+   
+*To exit the nano text editor.
+   Press Ctrl+X
+   
+*Restart the web server:
+   sudo service apache2 restart
+   
+*Return to the web browser tab in which you opened your bloghost VM instance's external IP address and load the page
+   Result: Database connection succeeded
+   
+   
+   5. Configure an application in a Compute Engine instance to use a Cloud Storage object
+   
+   *gcloud compute storage --bucket "" --object "my-excellent-blog.png" --Public access "Public link"
+   
+   *Return to your ssh session on your bloghost VM instance
+   ssh bloghost
+   
+   *Set your working directory to the document root of the web server:
+     cd /var/www/html
+	 
+   *Use the nano text editor to edit index.php:
+      sudo nano index.php
+	  
+   *Place the line containing <img src='...'> immediately before the line containing <h1>...</h1>
+      <img src='https://storage.googleapis.com/qwiklabs-gcp-0005e186fa559a09/my-excellent-blog.png'>
+	  
+	  
+   *To save your edited file:
+      Press Ctrl+O and Enter
+   
+   *To exit the nano text editor.
+     Press Ctrl+X
+   
+   *Restart the web server:
+     sudo service apache2 restart
